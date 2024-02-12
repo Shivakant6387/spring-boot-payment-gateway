@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title>Payment gateway api</title>
+</head>
+<body>
+<h2 class="text-center my-3">This application testing payment gateway api </h2>
+<hr/>
+<input id="payment_field" type="text" class="form-control" placeholder="Enter your amount here">
+<div class="container text-center">
+    <button onclick="paymentStart()" class="btn btn-success my-2">Checkout</button>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    function paymentStart() {
+        console.log("payment started...");
+        let amount = $("#payment_field").val();
+        console.log(amount);
+        if(amount == "" || amount == null) {
+            alert("Amount is required !!");
+            return;
+        }
+
+        $.ajax({
+            url: '/create_order',
+            data: JSON.stringify({ amount: amount, info: 'order_request' }),
+            contentType: 'application/json',
+            type: 'POST',
+            success: function(response) {
+                console.log(response);
+                if(response.status == 'created') {
+                    let options = {
+                        key:'rzp_test_iGTU8Hpg1DEbgP',
+                        amount:response.amount,
+                        currency:"INR",
+                        description:"Payment Description",
+                        order_id: response.id,
+                        image:'https://img.freepik.com/free-vector/mobile-banking-concept-illustration_114360-12396.jpg?w=740&t=st=1707564354~exp=1707564954~hmac=057a5322a31226f856f2a0dcc860df6a4ac7fb9037756bd2b07d3392b247388a',
+                        handler: function(response) {
+                            console.log(response.razorpay_payment_id);
+                            console.log(response.razorpay_order_id);
+                            console.log(response.razorpay_signature);
+                            console.log('Payment successful !!');
+                            alert("Congratulations! Payment successful !!");
+                        },
+                        prefill: {
+                            name: "",
+                            email: "",
+                            contact: ""
+                        },
+                        notes: {
+                            address: "Razorpay Corporate Office"
+                        },
+                        theme: {
+                            color: "#3399cc"
+                        }
+                    };
+                    var rzp = new Razorpay(options);
+                    rzp.on('payment.failed', function (response){
+                        console.log(response.error.code);
+                        console.log(response.error.description);
+                        console.log(response.error.source);
+                        console.log(response.error.step);
+                        console.log(response.error.reason);
+                        console.log(response.error.metadata.order_id);
+                        console.log(response.error.metadata.payment_id);
+                        alert("Oops! Payment failed !!");
+                    });
+                    rzp.open();
+                }
+            },
+            error: function(error) {
+                console.log(error);
+                alert("Something went wrong!!");
+            }
+        });
+    }
+</script>
+</body>
+</html>
