@@ -31,19 +31,19 @@
             contentType: 'application/json',
             type: 'POST',
             success: function(response) {
-                console.log(response);
-                if(response.status == 'created') {
+                var responseObject = JSON.parse(response);
+                if(responseObject.status == 'created') {
                     let options = {
                         key:'rzp_test_iGTU8Hpg1DEbgP',
-                        amount:response.amount,
+                        amount:responseObject.amount,
                         currency:"INR",
-                        description:"Payment Description",
-                        order_id: response.id,
+                        description:"Payment Transaction",
+                        order_id: responseObject.id,
                         image:'https://img.freepik.com/free-vector/mobile-banking-concept-illustration_114360-12396.jpg?w=740&t=st=1707564354~exp=1707564954~hmac=057a5322a31226f856f2a0dcc860df6a4ac7fb9037756bd2b07d3392b247388a',
-                        handler: function(response) {
-                            console.log(response.razorpay_payment_id);
-                            console.log(response.razorpay_order_id);
-                            console.log(response.razorpay_signature);
+                        handler: function(responseObject) {
+                            console.log(responseObject.razorpay_payment_id);
+                            console.log(responseObject.razorpay_order_id);
+                            console.log(responseObject.razorpay_signature);
                             console.log('Payment successful !!');
                             alert("Congratulations! Payment successful !!");
                         },
@@ -60,14 +60,14 @@
                         }
                     };
                     var rzp = new Razorpay(options);
-                    rzp.on('payment.failed', function (response){
-                        console.log(response.error.code);
-                        console.log(response.error.description);
-                        console.log(response.error.source);
-                        console.log(response.error.step);
-                        console.log(response.error.reason);
-                        console.log(response.error.metadata.order_id);
-                        console.log(response.error.metadata.payment_id);
+                    rzp.on('payment.failed', function (responseObject){
+                        console.log(responseObject.error.code);
+                        console.log(responseObject.error.description);
+                        console.log(responseObject.error.source);
+                        console.log(responseObject.error.step);
+                        console.log(responseObject.error.reason);
+                        console.log(responseObject.error.metadata.order_id);
+                        console.log(responseObject.error.metadata.payment_id);
                         alert("Oops! Payment failed !!");
                     });
                     rzp.open();
